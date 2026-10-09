@@ -56,6 +56,13 @@ function init(server) {
             }
           });
         }
+        else if (data.type === 'REACTION') {
+          wss.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+              client.send(JSON.stringify(data));
+            }
+          });
+        }
       } catch (e) {
         console.error('Socket message error', e);
       }

@@ -3,27 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>CineSync Watch Room</title>
-  <style>
-    /* existing styles */
-    body { background: #090a0f; color: white; font-family: sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-    .video-section { flex: 3; display: flex; flex-direction: column; padding: 1rem; }
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-    video { width: 100%; aspect-ratio: 16/9; background: black; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    button { background: #3b82f6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-weight: bold; }
-    button:hover { background: #2563eb; }
-    .chat-panel { flex: 1; background: #121520; border-left: 1px solid #1e293b; display: flex; flex-direction: column; }
-    .chat-messages { flex: 1 1 auto; overflow-y: auto; min-height: 0; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
-    .chat-input-area { flex-shrink: 0; padding: 1rem; background: #1e293b; display: flex; gap: 0.5rem; margin-top: auto; position: sticky; bottom: 0; }
-    .chat-input-area input { flex: 1; padding: 0.8rem; border-radius: 4px; border: none; background: #334155; color: white; }
-    .msg { background: rgba(255,255,255,0.05); padding: 0.6rem; border-radius: 8px; font-size: 0.9rem; word-break: break-word; }
-    
-    /* modal styles */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-    .modal-content { background: #1e293b; padding: 2.5rem; border-radius: 8px; text-align: center; width: 320px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
-    .modal-content h3 { margin-top: 0; margin-bottom: 1.5rem; }
-    .modal-content input { width: 100%; padding: 0.8rem; margin-bottom: 1.5rem; border: 1px solid #334155; border-radius: 4px; background: #0f172a; color: white; box-sizing: border-box; }
-    .modal-content button { width: 100%; padding: 0.9rem; }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="joinModal" class="modal-overlay">
@@ -36,21 +16,65 @@
     </div>
   </div>
 
-  <div class="video-section">
-    <header>
-      <h2 style="margin:0;">CineSync Room <span id="userCountBadge" style="font-size: 0.9rem; color: #10b981; font-weight: normal; margin-left: 0.5rem;"></span></h2>
-      <button id="shareBtn">Share Link</button>
-    </header>
-    <video id="player" controls preload="metadata" playsinline crossorigin="anonymous">
-      <track kind="subtitles" src="/media/subtitles.vtt" default>
-    </video>
-  </div>
-  
-  <div class="chat-panel">
-    <div class="chat-messages" id="chatFeed"></div>
-    <div class="chat-input-area">
-      <input type="text" id="chatInput" placeholder="Message...">
-      <button id="sendBtn">Send</button>
+  <div class="app-container" id="app-container">
+    <div class="video-section">
+      <header id="player-header">
+        <h2>CineSync <span id="userCountBadge" style="font-size: 0.9rem; color: #10b981; font-weight: normal; margin-left: 0.5rem;"></span></h2>
+        <button class="share-btn" id="shareBtn">Share Link</button>
+      </header>
+      
+      <div id="player-wrapper">
+        <video id="player" preload="metadata" playsinline crossorigin="anonymous">
+          <track id="cc-track" kind="subtitles" src="/media/subtitles.vtt" default>
+        </video>
+        
+        <div class="controls-bar" id="controls-bar">
+          <div class="scrubber-container" id="scrubber">
+            <div class="scrubber-fill" id="scrubber-fill"></div>
+            <div class="scrubber-hover-time" id="scrubber-hover">00:00</div>
+          </div>
+          
+          <div class="controls-row">
+            <div class="controls-left">
+              <button class="control-btn" id="btn-playpause">▶</button>
+              <button class="control-btn" id="btn-skipback">↺</button>
+              <button class="control-btn" id="btn-skipfwd">↻</button>
+              <div class="volume-container">
+                <button class="control-btn" id="btn-mute">🔊</button>
+                <input type="range" class="volume-slider" id="volume-slider" min="0" max="1" step="0.05" value="1">
+              </div>
+              <span class="time-display" id="time-display">00:00 / 00:00</span>
+            </div>
+            
+            <div class="controls-right">
+              <button class="control-btn" id="btn-chat">💬</button>
+              <button class="control-btn" id="btn-cc">CC</button>
+              <button class="control-btn" id="btn-fullscreen">⛶</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="chat-panel" id="chat-panel">
+      <div class="chat-header">
+        <span>Room Chat</span>
+        <button class="control-btn" id="btn-close-chat" style="width: 24px; height: 24px; font-size: 0.8rem;">✕</button>
+      </div>
+      <div class="chat-messages" id="chatFeed"></div>
+      
+      <div class="chat-input-area">
+        <div class="reactions-bar">
+          <button class="reaction-btn">🔥</button>
+          <button class="reaction-btn">😂</button>
+          <button class="reaction-btn">🍿</button>
+          <button class="reaction-btn">❤️</button>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" id="chatInput" placeholder="Send a message...">
+          <button id="sendBtn">Send</button>
+        </div>
+      </div>
     </div>
   </div>
 
