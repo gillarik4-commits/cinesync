@@ -7,6 +7,8 @@ let roomState = {
   lastUpdated: Date.now()
 };
 
+let activeUsers = 0;
+
 function init(server) {
   wss = new WebSocket.Server({ server });
 
@@ -15,7 +17,18 @@ function init(server) {
       try {
         const data = JSON.parse(message);
         
-        if (data.type === 'REQUEST_STATE') {
+        if (data.type === 'USER_JOIN') {
+          ws.username = data.username || 'Anonymous';
+          activeUsers++;
+          
+          wss.clients.forEach(c => {
+            if (c.readyState === WebSocket.OPEN) {
+              c.send(JSON.stringify({ type: 'SYSTEM_MESSAGE', text: `${ws.username} joined the party` }));
+              c.send(JSON.stringify({ type: 'USER_COUNT', count: activeUsers }));
+            }
+          });
+        }
+        else if (data.type === 'REQUEST_STATE') {
           let interpolatedTime = roomState.currentVideoTime;
           if (roomState.isPlaying) {
             interpolatedTime += (Date.now() - roomState.lastUpdated) / 1000;
@@ -45,6 +58,18 @@ function init(server) {
         }
       } catch (e) {
         console.error('Socket message error', e);
+      }
+    });
+
+    ws.on('close', () => {
+      if (ws.username) {
+        activeUsers--;
+        wss.clients.forEach(c => {
+          if (c.readyState === WebSocket.OPEN) {
+            c.send(JSON.stringify({ type: 'SYSTEM_MESSAGE', text: `${ws.username} left the party` }));
+            c.send(JSON.stringify({ type: 'USER_COUNT', count: activeUsers }));
+          }
+        });
       }
     });
   });

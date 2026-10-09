@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>CineSync Watch Room</title>
   <style>
+    /* existing styles */
     body { background: #090a0f; color: white; font-family: sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
     .video-section { flex: 3; display: flex; flex-direction: column; padding: 1rem; }
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
@@ -15,12 +16,29 @@
     .chat-input-area { flex-shrink: 0; padding: 1rem; background: #1e293b; display: flex; gap: 0.5rem; margin-top: auto; position: sticky; bottom: 0; }
     .chat-input-area input { flex: 1; padding: 0.8rem; border-radius: 4px; border: none; background: #334155; color: white; }
     .msg { background: rgba(255,255,255,0.05); padding: 0.6rem; border-radius: 8px; font-size: 0.9rem; word-break: break-word; }
+    
+    /* modal styles */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+    .modal-content { background: #1e293b; padding: 2.5rem; border-radius: 8px; text-align: center; width: 320px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
+    .modal-content h3 { margin-top: 0; margin-bottom: 1.5rem; }
+    .modal-content input { width: 100%; padding: 0.8rem; margin-bottom: 1.5rem; border: 1px solid #334155; border-radius: 4px; background: #0f172a; color: white; box-sizing: border-box; }
+    .modal-content button { width: 100%; padding: 0.9rem; }
   </style>
 </head>
 <body>
+  <div id="joinModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3>Choose your name</h3>
+      <form id="joinForm">
+        <input type="text" id="usernameInput" placeholder="Display Name" required autofocus>
+        <button type="submit">Join Watch Party</button>
+      </form>
+    </div>
+  </div>
+
   <div class="video-section">
     <header>
-      <h2 style="margin:0;">CineSync Room</h2>
+      <h2 style="margin:0;">CineSync Room <span id="userCountBadge" style="font-size: 0.9rem; color: #10b981; font-weight: normal; margin-left: 0.5rem;"></span></h2>
       <button id="shareBtn">Share Link</button>
     </header>
     <video id="player" controls preload="metadata" playsinline crossorigin="anonymous">

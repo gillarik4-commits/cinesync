@@ -6,8 +6,27 @@ const sendBtn = document.getElementById('sendBtn');
 
 let ws;
 let isRemoteUpdate = false;
-const username = 'User_' + Math.floor(Math.random() * 1000);
+let username = '';
 
+const joinModal = document.getElementById('joinModal');
+const joinForm = document.getElementById('joinForm');
+const usernameInput = document.getElementById('usernameInput');
+
+const savedUsername = localStorage.getItem('cinesync_username');
+if (savedUsername) {
+  usernameInput.value = savedUsername;
+}
+
+joinForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = usernameInput.value.trim();
+  if (name) {
+    username = name;
+    localStorage.setItem('cinesync_username', username);
+    joinModal.style.display = 'none';
+    initWebSocket();
+  }
+});
 // Initialize player source
 player.src = '/video';
 
@@ -29,6 +48,7 @@ function initWebSocket() {
   ws = new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}`);
   
   ws.onopen = () => {
+    ws.send(JSON.stringify({ type: 'USER_JOIN', username }));
     ws.send(JSON.stringify({ type: 'REQUEST_STATE' }));
   };
 
@@ -57,10 +77,20 @@ function initWebSocket() {
       div.textContent = `[${timeStr}] ${data.username}: ${data.text}`;
       chatFeed.appendChild(div);
       chatFeed.scrollTop = chatFeed.scrollHeight;
+    } else if (data.type === 'SYSTEM_MESSAGE') {
+      const div = document.createElement('div');
+      div.className = 'msg';
+      div.style.color = '#10b981';
+      div.style.fontStyle = 'italic';
+      div.textContent = data.text;
+      chatFeed.appendChild(div);
+      chatFeed.scrollTop = chatFeed.scrollHeight;
+    } else if (data.type === 'USER_COUNT') {
+      const badge = document.getElementById('userCountBadge');
+      if (badge) badge.textContent = `(${data.count} online)`;
     }
   };
 }
-initWebSocket();
 
 function broadcastSync(action) {
   if (!ws || ws.readyState !== WebSocket.OPEN || isRemoteUpdate) return;
