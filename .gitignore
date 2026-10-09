@@ -1,0 +1,8 @@
+node_modules/
+*.mp4
+*.mkv
+*.avi
+*.vtt
+public/media/
+.env
+nohup.out

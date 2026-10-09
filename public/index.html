@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CineSync Setup</title>
+  <style>
+    body { background: #0f172a; color: white; font-family: sans-serif; display: flex; justify-content: center; padding-top: 5rem; margin: 0; }
+    .card { background: #1e293b; padding: 2rem; border-radius: 8px; width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    input, select, button { width: 100%; margin-top: 0.5rem; margin-bottom: 1rem; padding: 0.8rem; box-sizing: border-box; border-radius: 4px; border: 1px solid #334155; background: #0f172a; color: white; }
+    button { background: #3b82f6; color: white; border: none; cursor: pointer; font-weight: bold; }
+    button:hover { background: #2563eb; }
+    .progress-bar { width: 100%; height: 10px; background: #334155; border-radius: 5px; overflow: hidden; margin-top: 1rem; display: none; }
+    .progress-fill { width: 0%; height: 100%; background: #10b981; transition: width 0.3s; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Host Watch Party</h2>
+    <label>Local Movie Path</label>
+    <input type="text" id="filepath" placeholder="/path/to/movie.mkv">
+    <button id="inspectBtn">Inspect</button>
+
+    <div id="trackSelection" style="display: none;">
+      <label>Audio Track</label>
+      <select id="audioTrack"></select>
+      
+      <label>Subtitle Track</label>
+      <select id="subTrack"></select>
+      
+      <button id="startBtn">Start Watch Party</button>
+      
+      <div class="progress-bar" id="progressBarContainer">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </div>
+  <script src="/setup.js"></script>
+</body>
+</html>

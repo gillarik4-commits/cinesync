@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CineSync Watch Room</title>
+  <style>
+    body { background: #090a0f; color: white; font-family: sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+    .video-section { flex: 3; display: flex; flex-direction: column; padding: 1rem; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    video { width: 100%; aspect-ratio: 16/9; background: black; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    button { background: #3b82f6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    button:hover { background: #2563eb; }
+    .chat-panel { flex: 1; background: #121520; border-left: 1px solid #1e293b; display: flex; flex-direction: column; }
+    .chat-messages { flex: 1 1 auto; overflow-y: auto; min-height: 0; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .chat-input-area { flex-shrink: 0; padding: 1rem; background: #1e293b; display: flex; gap: 0.5rem; margin-top: auto; position: sticky; bottom: 0; }
+    .chat-input-area input { flex: 1; padding: 0.8rem; border-radius: 4px; border: none; background: #334155; color: white; }
+    .msg { background: rgba(255,255,255,0.05); padding: 0.6rem; border-radius: 8px; font-size: 0.9rem; word-break: break-word; }
+  </style>
+</head>
+<body>
+  <div class="video-section">
+    <header>
+      <h2 style="margin:0;">CineSync Room</h2>
+      <button id="shareBtn">Share Link</button>
+    </header>
+    <video id="player" controls preload="metadata" playsinline crossorigin="anonymous">
+      <track kind="subtitles" src="/media/subtitles.vtt" default>
+    </video>
+  </div>
+  
+  <div class="chat-panel">
+    <div class="chat-messages" id="chatFeed"></div>
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Message...">
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
