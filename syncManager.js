@@ -82,8 +82,14 @@ function init(server) {
   });
 }
 
+function resetRoomState() {
+  roomState.currentVideoTime = 0;
+  roomState.isPlaying = false;
+  roomState.lastUpdated = Date.now();
+}
+
 function getWss() {
   return wss;
 }
 
-module.exports = { init, getWss };
+module.exports = { init, getWss, resetRoomState };

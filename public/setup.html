@@ -103,8 +103,8 @@
         const audioSelect = document.getElementById('audio-select');
         const subSelect = document.getElementById('sub-select');
         
-        audioSelect.innerHTML = data.audio.map(a => `<option value="${a.id}">${a.label}</option>`).join('');
-        subSelect.innerHTML = `<option value="none">None</option>` + data.subtitle.map(s => `<option value="${s.id}">${s.label}</option>`).join('');
+        audioSelect.innerHTML = data.audio.map(a => `<option value="${a.index}">${a.label}</option>`).join('');
+        subSelect.innerHTML = `<option value="none">None</option>` + data.subtitle.map(s => `<option value="${s.index}">${s.label}</option>`).join('');
 
         document.getElementById('setup-step-1').style.display = 'none';
         document.getElementById('setup-step-2').style.display = 'block';
@@ -124,11 +124,11 @@
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.type === 'TRANSCODE_PROGRESS') {
-          const percent = Math.min(100, Math.round((data.processedMs / mediaDurationMs) * 100));
+          const percent = Math.min(100, Math.max(0, Math.round(data.percent || 0)));
           document.getElementById('progress-bar').style.width = percent + '%';
           document.getElementById('progress-text').textContent = `Processing: ${percent}%`;
-        } else if (data.type === 'TRANSCODE_COMPLETE') {
-          window.location.href = '/watch';
+        } else if (data.type === 'TRANSCODE_COMPLETE' || data.type === 'MEDIA_READY') {
+          window.location.href = '/watch.html';
         }
       };
     }
@@ -138,7 +138,7 @@
       document.getElementById('progress-container').style.display = 'block';
       
       try {
-        await fetch('/api/start-party', {
+        await fetch('/api/prepare', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

@@ -13,8 +13,13 @@ if (!fs.existsSync(MEDIA_DIR)) {
   fs.mkdirSync(MEDIA_DIR, { recursive: true });
 }
 
-router.get('/api/inspect', (req, res) => {
-  const filePath = req.query.filePath;
+let appStateRef = null;
+
+function setAppState(state) {
+  appStateRef = state;
+}
+
+function handleInspect(filePath, res) {
   if (!filePath || !fs.existsSync(filePath)) {
     return res.status(400).json({ error: 'File not found' });
   }
@@ -37,9 +42,17 @@ router.get('/api/inspect', (req, res) => {
 
     res.json(result);
   });
+}
+
+router.get('/api/inspect', (req, res) => {
+  handleInspect(req.query.filePath, res);
 });
 
-router.post('/api/prepare', (req, res) => {
+router.post('/api/inspect', (req, res) => {
+  handleInspect(req.body.filePath, res);
+});
+
+const handlePrepare = (req, res) => {
   const { filePath, audioIndex, subIndex } = req.body;
   if (!filePath || !fs.existsSync(filePath)) {
     return res.status(400).json({ error: 'File not found' });
@@ -83,9 +96,17 @@ router.post('/api/prepare', (req, res) => {
     });
 
     cmd.on('end', () => {
+      if (appStateRef) {
+        appStateRef.isPartyActive = true;
+      }
       const wss = getWss();
       if (wss) {
-        wss.clients.forEach(c => c.send(JSON.stringify({ type: 'TRANSCODE_COMPLETE' })));
+        wss.clients.forEach(c => {
+          if (c.readyState === 1) {
+            c.send(JSON.stringify({ type: 'TRANSCODE_COMPLETE' }));
+            c.send(JSON.stringify({ type: 'MEDIA_READY' }));
+          }
+        });
       }
     });
     
@@ -93,7 +114,10 @@ router.post('/api/prepare', (req, res) => {
       console.error('Transcode error:', err.message);
     });
   });
-});
+};
+
+router.post('/api/prepare', handlePrepare);
+router.post('/api/start-party', handlePrepare);
 
 router.get('/video', (req, res) => {
   if (!fs.existsSync(MOVIE_PATH)) {
@@ -135,4 +159,4 @@ router.get('/video', (req, res) => {
   }
 });
 
-module.exports = { router };
+module.exports = { router, setAppState };

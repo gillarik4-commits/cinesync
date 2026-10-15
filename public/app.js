@@ -16,6 +16,7 @@ const volumeSlider = document.getElementById('volume-slider');
 const btnCC = document.getElementById('btn-cc');
 const btnFullscreen = document.getElementById('btn-fullscreen');
 const btnChatToggle = document.getElementById('btn-chat');
+const btnChangeMedia = document.getElementById('btn-change-media');
 
 const chatPanel = document.getElementById('chat-panel');
 const btnCloseChat = document.getElementById('btn-close-chat');
@@ -163,6 +164,20 @@ shareBtn.addEventListener('click', async () => {
   } catch (err) {}
 });
 
+if (btnChangeMedia) {
+  btnChangeMedia.addEventListener('click', async () => {
+    const ok = confirm("Are you sure you want to change the movie? This will interrupt playback for everyone.");
+    if (ok) {
+      try {
+        await fetch('/api/reset-party', { method: 'POST' });
+      } catch (err) {
+        console.error('Reset party failed', err);
+      }
+      window.location.href = '/';
+    }
+  });
+}
+
 // Websocket
 function initWebSocket() {
   ws = new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}`);
@@ -192,6 +207,14 @@ function initWebSocket() {
       if (b) b.textContent = `(${data.count} online)`;
     } else if (data.type === 'REACTION') {
       spawnFloatingEmoji(data.emoji);
+    } else if (data.type === 'MEDIA_CHANGING') {
+      player.pause();
+      const overlay = document.getElementById('mediaChangingOverlay');
+      if (overlay) {
+        overlay.style.display = 'flex';
+      }
+    } else if (data.type === 'MEDIA_READY') {
+      window.location.reload(true);
     }
   };
 }

@@ -8,20 +8,33 @@ const syncManager = require('./syncManager');
 const app = express();
 const server = http.createServer(app);
 
+const fs = require('fs');
+
 const PORT = process.env.PORT || 3000;
-const appState = { shareUrl: null };
+const appState = {
+  shareUrl: null,
+  isPartyActive: fs.existsSync(path.join(__dirname, 'public', 'media', 'movie.mp4'))
+};
+mediaManager.setAppState(appState);
 
 app.use(express.json());
 
-const fs = require('fs');
+// Route guard
 app.use((req, res, next) => {
-  const isPartyActive = fs.existsSync(path.join(__dirname, 'public', 'media', 'movie.mp4'));
-  
-  if (req.path === '/' || req.path === '/index.html' || req.path === '/setup.html') {
-    if (isPartyActive) {
+  if (req.path === '/' || req.path === '/index.html') {
+    if (appState.isPartyActive) {
+      return res.redirect('/watch.html');
+    } else {
+      return res.redirect('/setup.html');
+    }
+  }
+
+  if (req.path === '/setup.html') {
+    if (appState.isPartyActive) {
       return res.redirect('/watch.html');
     }
   }
+
   next();
 });
 
@@ -29,6 +42,21 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Attach media routes
 app.use('/', mediaManager.router);
+
+// Reset party endpoint
+app.post('/api/reset-party', (req, res) => {
+  appState.isPartyActive = false;
+  syncManager.resetRoomState();
+  const wss = syncManager.getWss();
+  if (wss) {
+    wss.clients.forEach(client => {
+      if (client.readyState === 1) {
+        client.send(JSON.stringify({ type: 'MEDIA_CHANGING' }));
+      }
+    });
+  }
+  res.json({ success: true, message: 'Party reset initiated' });
+});
 
 // Attach websocket sync
 syncManager.init(server);

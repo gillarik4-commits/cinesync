@@ -6,3 +6,6 @@ node_modules/
 public/media/
 .env
 nohup.out
+
+.agents/
+skills-lock.json
